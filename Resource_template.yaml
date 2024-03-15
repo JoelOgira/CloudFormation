@@ -1,0 +1,28 @@
+---
+AWSTemplateFormatVersion: "2010-09-09"
+Description: CloudFormation Template to create s3 and ec2     
+Resources:
+  s3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: jaynews3bucket
+      Tags:
+        - Key: Bucket Owner
+          Value: Jay
+  myEC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: ami-0d7a109bf30624c99
+      InstanceType: t2.micro
+      Tags:
+        - Key: Instance Name
+          Value: Jay ec2
+  myVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsHostnames: true
+      EnableDnsSupport: true
+      Tags:
+        - Key: vpc name
+          Value: jay vpc
