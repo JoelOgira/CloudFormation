@@ -1,0 +1,103 @@
+---
+AWSTemplateFormatVersion: "2010-09-09"
+
+Description: Provision of Resources including the following - ec2, s3, vpc, along with parameters and resources
+
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: Compute Configuration
+        Parameters:
+          - Ec2AMIParameter
+          - InstanceTypeParameter
+
+      - Label:
+          default: Storage Configuration
+        Parameters:
+          - BucketNameParameter
+
+      - Label:
+          default: Network Configuration
+            - JayVPC
+            - JaySubnet
+
+# *************************************************************** #
+# *************************************************************** #
+
+Parameters:
+  ec2ImageId:
+    Type: String
+    Default: ami-0d7a109bf30624c99 # Amazon linux AMI
+    AllowedValues:
+      - ami-0d7a109bf30624c99 # Amazon linux AMI
+      - ami-0873bd33f11079049 # MacOs AMI
+      - ami-080e1f13689e07408 # Ubuntu AMI
+      - ami-0f9c44e98edf38a2b # Windows AMI
+      - ami-0fe630eb857a6ec83 # Redhat AMI
+    Description: Choose your AMI from the provided list
+
+  ec2InstanceType:
+    Type: String
+    Default: t2.micro
+    AllowedValues:
+      - t2.micro
+      - m1.small
+      - m1.large
+    Description: Enter t2.micro, m1.small, or m1.large. Default is t2.micro.
+
+  s3BucketName:
+    Type: String
+
+  vpcBlock:
+    Type: String
+    Default: 10.0.0.0/16
+    AllowedValues:
+      - 10.0.0.0/16
+      - 10.0.0.0/24
+    Description: VPC CIDR
+
+  vpcSubnet:
+    Type: String
+    Default: 10.0.0.0/24
+    Description: VPC CIDR Subnet
+
+# *************************************************************** #
+# *************************************************************** #
+
+Resources:
+  JayVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: !Ref vpcBlock
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+        - Key: department
+          Value: data science
+
+  JaySubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref JayVPC
+      CidrBlock: !Ref vpcSubnet
+      Tags:
+        - Key: department
+          Value: data science
+
+  JayEC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !Ref ec2ImageId
+      InstanceType: !Ref ec2InstanceType
+      Tags:
+        - Key: department
+          Value: data science
+
+  s3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref s3BucketName
+      Tags:
+        - Key: department
+          Value: data science
