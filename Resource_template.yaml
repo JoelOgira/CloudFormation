@@ -1,28 +1,51 @@
----
 AWSTemplateFormatVersion: "2010-09-09"
-Description: CloudFormation Template to create s3 and ec2     
+Description: CloudFormation Template to create s3 and ec2
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: Compute Configuration
+        Parameters:
+          - Ec2AMIParameter
+          - InstanceTypeParameter
+      - Label:
+          default: Storage Configuration
+        Parameters:
+          - BucketNameParameter
+Parameters:
+  Ec2AMIParameter:
+    Type: String
+    Default: ami-0d7a109bf30624c99
+    AllowedValues:
+      - ami-0d7a109bf30624c99
+      - ami-0873bd33f11079049
+      - ami-080e1f13689e07408
+      - ami-0f9c44e98edf38a2b
+      - ami-0fe630eb857a6ec83
+  InstanceTypeParameter:
+    Type: String
+    Default: t2.micro
+    AllowedValues:
+      - t2.micro
+      - m1.small
+      - m1.large
+    Description: Enter t2.micro, m1.small, or m1.large. Default is t2.micro.
+  BucketNameParameter:
+    Type: String
 Resources:
   s3Bucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: jaynews3bucket
+      BucketName: !Ref BucketNameParameter
       Tags:
         - Key: Bucket Owner
           Value: Jay
   myEC2Instance:
     Type: AWS::EC2::Instance
     Properties:
-      ImageId: ami-0d7a109bf30624c99
-      InstanceType: t2.micro
+      ImageId: !Ref Ec2AMIParameter
+      InstanceType: !Ref InstanceTypeParameter
       Tags:
         - Key: Instance Name
           Value: Jay ec2
-  myVPC:
-    Type: AWS::EC2::VPC
-    Properties:
-      CidrBlock: 10.0.0.0/16
-      EnableDnsHostnames: true
-      EnableDnsSupport: true
-      Tags:
-        - Key: vpc name
-          Value: jay vpc
+Transform: AWS::Serverless-2016-10-31
