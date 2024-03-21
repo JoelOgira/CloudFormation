@@ -1,51 +1,85 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: CloudFormation Template to create s3 and ec2
+
+Description: CloudFormation Template to create S3 bucket and EC2 instance
+
 Metadata:
   AWS::CloudFormation::Interface:
     ParameterGroups:
       - Label:
           default: Compute Configuration
         Parameters:
-          - Ec2AMIParameter
+          - Ec2ImageIdParameter
           - InstanceTypeParameter
       - Label:
           default: Storage Configuration
         Parameters:
           - BucketNameParameter
+      - Label:
+          default: Key Pair Configuration
+        Parameters:
+          - KeyPairParameter
+
 Parameters:
-  Ec2AMIParameter:
+  Ec2ImageIdParameter:
     Type: String
-    Default: ami-0d7a109bf30624c99
+    Default: ami-080e1f13689e07408
     AllowedValues:
       - ami-0d7a109bf30624c99
       - ami-0873bd33f11079049
       - ami-080e1f13689e07408
       - ami-0f9c44e98edf38a2b
       - ami-0fe630eb857a6ec83
+    Description: EC2 Image ID
+
   InstanceTypeParameter:
     Type: String
     Default: t2.micro
     AllowedValues:
       - t2.micro
-      - m1.small
-      - m1.large
-    Description: Enter t2.micro, m1.small, or m1.large. Default is t2.micro.
+      - t2.nano
+    Description: EC2 Instance Type
+
   BucketNameParameter:
     Type: String
+    Description: S3 Bucket Name
+
+  KeyPairParameter:
+    Type: String
+    Description: Key Pair Name
+
+  SecurityGroupParameter:
+    Type: String
+    Default: vpc-051ed554342f4001f
+    Description: Security Group VpcId
+
 Resources:
+  MySecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for the EC2 instance
+      VpcId: !Ref SecurityGroupParameter
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+
+  MyEC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !Ref Ec2ImageIdParameter
+      InstanceType: !Ref InstanceTypeParameter
+      SecurityGroupIds:
+        - !Ref MySecurityGroup
+      KeyName: !Ref KeyPairParameter
+      Tags:
+        - Key: Name
+          Value: !Sub "Jay EC2 - ${AWS::StackName}"
+
   s3Bucket:
     Type: AWS::S3::Bucket
     Properties:
       BucketName: !Ref BucketNameParameter
       Tags:
-        - Key: Bucket Owner
-          Value: Jay
-  myEC2Instance:
-    Type: AWS::EC2::Instance
-    Properties:
-      ImageId: !Ref Ec2AMIParameter
-      InstanceType: !Ref InstanceTypeParameter
-      Tags:
-        - Key: Instance Name
-          Value: Jay ec2
-Transform: AWS::Serverless-2016-10-31
+        - Key: Owner
+          Value: !Sub "Jay - ${AWS::StackName}"
