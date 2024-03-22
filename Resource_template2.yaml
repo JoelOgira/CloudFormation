@@ -19,8 +19,14 @@ Metadata:
 
       - Label:
           default: Network Configuration
-            - JayVPC
-            - JaySubnet
+        Parameters:
+          - JayVPC
+          - JaySubnet
+
+      - Label:
+          default: KeyPair Configuration
+        Parameters:
+          - keyPairParameter
 
 # *************************************************************** #
 # *************************************************************** #
@@ -48,6 +54,7 @@ Parameters:
 
   s3BucketName:
     Type: String
+    Description: Enter your s3 bucket name.
 
   vpcBlock:
     Type: String
@@ -61,6 +68,10 @@ Parameters:
     Type: String
     Default: 10.0.0.0/24
     Description: VPC CIDR Subnet
+
+  keyPairParameter:
+    Type: String
+    Description: Enter your Key Pair name.
 
 # *************************************************************** #
 # *************************************************************** #
@@ -84,6 +95,11 @@ Resources:
       Tags:
         - Key: department
           Value: data science
+
+  JayEc2KeyPair:
+    Type: AWS::EC2::KeyPair
+    Properties:
+      KeyName: !Ref keyPairParameter
 
   JayEC2Instance:
     Type: AWS::EC2::Instance

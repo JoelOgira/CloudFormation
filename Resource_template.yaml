@@ -10,14 +10,11 @@ Metadata:
         Parameters:
           - Ec2ImageIdParameter
           - InstanceTypeParameter
+          - KeyPairParameter
       - Label:
           default: Storage Configuration
         Parameters:
           - BucketNameParameter
-      - Label:
-          default: Key Pair Configuration
-        Parameters:
-          - KeyPairParameter
 
 Parameters:
   Ec2ImageIdParameter:
