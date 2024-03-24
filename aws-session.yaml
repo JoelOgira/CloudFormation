@@ -1,0 +1,87 @@
+---
+AWSTemplateFormatVersion: "2010-09-09"
+
+Description: Provision of resources to host nodejs application on an ec2 instance
+
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: Compute Configuration
+        Parameters:
+          - ec2ImageId
+          - InstanceTypeParameter
+          - keyPairParameter
+          - securityGroupParameter
+
+# *************************************************************** #
+# Parameters
+
+Parameters:
+  ec2ImageId:
+    Type: String
+    Default: ami-080e1f13689e07408 # Amazon linux AMI
+    AllowedValues:
+      - ami-0d7a109bf30624c99 # Amazon linux AMI
+      - ami-0873bd33f11079049 # MacOs AMI
+      - ami-080e1f13689e07408 # Ubuntu AMI
+      - ami-0f9c44e98edf38a2b # Windows AMI
+      - ami-0fe630eb857a6ec83 # Redhat AMI
+    Description: Choose your AMI from the provided list
+
+  ec2InstanceType:
+    Type: String
+    Default: t2.micro
+    AllowedValues:
+      - t2.micro
+      - t2.nano
+    Description: Enter t2.micro, t2.nano. Default is t2.micro.
+
+  keyPairParameter:
+    Type: String
+    Description: Enter your Key Pair name.
+
+  securityGroupParameter:
+    Type: String
+    Default: vpc-051ed554342f4001f
+    Description: Security Group VpcId
+
+# *************************************************************** #
+# Resources
+
+Resources:
+  JaySecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for the EC2 instance
+      VpcId: !Ref securityGroupParameter
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+
+  JayEc2KeyPair:
+    Type: AWS::EC2::KeyPair
+    Properties:
+      KeyName: !Ref keyPairParameter
+
+  JayEC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !Ref ec2ImageId
+      InstanceType: !Ref ec2InstanceType
+      KeyName: !Ref JayEc2KeyPair
+      SecurityGroupIds:
+        - !Ref JaySecurityGroup
+
+  JayEIP:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+
+  JayEIPAssociation:
+    Type: AWS::EC2::EIPAssociation
+    Properties:
+      InstanceId: !Ref JayEC2Instance
+      EIP: !Ref JayEIP
